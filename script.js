@@ -60,6 +60,7 @@ if (filterButtons.length > 0 && portfolioItems.length > 0) {
     });
 }
 
+
 // Lógica para previsualización de videos en el portafolio
 document.querySelectorAll('.portfolio-item').forEach(item => {
     const videoPreview = item.querySelector('.portfolio-video-preview');
@@ -193,12 +194,13 @@ window.addEventListener('scroll', () => {
     });
 });
 
-// Función para animar números
+// --- FUNCIÓN DE CONTEO CORREGIDA ---
 function animateCount(el) {
     const numberSpan = el.querySelector('.count-number');
     if (!numberSpan) return;
 
-    const target = parseInt(numberSpan.innerText.replace(/\D/g, ''));
+    const targetText = numberSpan.innerText; // Guardamos el texto original (ej: "100")
+    const target = parseInt(targetText.replace(/\D/g, ''));
     if (isNaN(target)) return;
     
     const duration = 2000;
@@ -207,7 +209,11 @@ function animateCount(el) {
     const step = (timestamp) => {
         if (!startTimestamp) startTimestamp = timestamp;
         const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        
+        // Curva de Easing (ease-out-quart): empieza rápido, frena suave
         const easedProgress = 1 - Math.pow(1 - progress, 4);
+        
+        // Usamos Math.round() en lugar de Math.floor() para que llegue al 100%
         const currentValue = Math.round(easedProgress * target);
         
         numberSpan.innerText = currentValue;
@@ -215,15 +221,18 @@ function animateCount(el) {
         if (progress < 1) {
             window.requestAnimationFrame(step);
         } else {
-            numberSpan.innerText = target;
-            el.classList.add('is-animated');
+            // Al final, nos aseguramos de que muestre el texto original exacto
+            numberSpan.innerText = targetText;
+            el.classList.add('is-animated'); // Disparamos la animación del sufijo (el "+")
         }
     };
     
+    // Empezamos desde 0
+    numberSpan.innerText = '0';
     window.requestAnimationFrame(step);
 }
 
-// Intersection Observer for animations
+// --- INTERSECTION OBSERVER CORREGIDO ---
 const observerOptions = {
     threshold: 0.25,
     rootMargin: '0px 0px -50px 0px'
@@ -237,6 +246,8 @@ const observer = new IntersectionObserver((entries, observer) => {
             if (entry.target.classList.contains('stat-item')) {
                 const statNumber = entry.target.querySelector('.stat-number');
                 if (statNumber && !statNumber.classList.contains('is-animated')) {
+                    // ¡ARREGLO! Marcar como animado INMEDIATAMENTE
+                    statNumber.classList.add('is-animated');
                     animateCount(statNumber);
                 }
             }
