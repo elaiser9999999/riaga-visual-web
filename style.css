@@ -44,30 +44,45 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: var(--primary-black);
+    background-color: var(--accent-red); /* <-- CAMBIO: Arranca en ROJO */
     z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.8s var(--easing), visibility 0.8s var(--easing);
+    /* Transiciones: una para el color, otra para el fade-out final */
+    transition: 
+        opacity 0.8s var(--easing), 
+        visibility 0.8s var(--easing),
+        background-color 0.5s var(--easing);
 }
 
+.splash-logo {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-black); /* <-- CAMBIO: Arranca en NEGRO */
+    opacity: 1;
+    transform: scale(1);
+    /* Transición solo para el color */
+    transition: color 0.5s var(--easing);
+}
+
+/* El "FLIP" o "STROBE" */
+.splash-screen.is-flipping {
+    background-color: var(--primary-black); /* Pasa a NEGRO */
+}
+.splash-screen.is-flipping .splash-logo {
+    color: var(--accent-red); /* Pasa a ROJO */
+}
+
+/* El "FADE OUT" final */
 .splash-screen.hidden {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
 }
 
-.splash-logo {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--accent-red);
-    opacity: 0;
-    transform: scale(0.95);
-    animation: fadeInPulse 1.5s ease-out forwards;
-}
 
 /* Header and Navigation */
 .header {
@@ -1050,7 +1065,7 @@ body {
 @keyframes staggerFadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes dropdownSlide { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes smoothZoom { 0% { transform: scale(1.05); } 100% { transform: scale(1.15); } }
-@keyframes fadeInPulse { 0% { opacity: 0; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes fadeInPulse { 0% { transform: scale(0.95); color: transparent; -webkit-text-stroke: 1px var(--accent-red); } 60% { transform: scale(1.05); color: transparent; -webkit-text-stroke: 1px var(--accent-red); } 80% { transform: scale(1); color: transparent; -webkit-text-stroke: 1px var(--accent-red); } 100% { transform: scale(1); color: var(--accent-red); -webkit-text-stroke: 1px var(--accent-red); } }
 @keyframes typing { from { width: 0 } to { width: 100% } }
 @keyframes blink-caret { from, to { border-right-color: transparent } 50% { border-right-color: var(--accent-red) } }
 

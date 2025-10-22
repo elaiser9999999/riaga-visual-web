@@ -1,26 +1,33 @@
-// --- LÓGICA DEL SPLASH SCREEN ---
-window.addEventListener('load', () => {
+// --- ¡¡EL ÚNICO LISTENER QUE IMPORTA!! ---
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- 1. LÓGICA DEL SPLASH SCREEN (STROBE INVERTIDO) ---
     const splashScreen = document.getElementById('splashScreen');
     const heroContent = document.querySelector('.hero-content');
     
     setTimeout(() => {
         if(splashScreen) {
-            splashScreen.classList.add('hidden');
+            splashScreen.classList.add('is-flipping'); // Pasa a Negro/Rojo
+        }
+    }, 500); // 0.5 segundos en Rojo/Negro
+
+    setTimeout(() => {
+        if(splashScreen) {
+            splashScreen.classList.add('hidden'); // Empieza el fade-out
         }
         if(heroContent) {
-            heroContent.classList.add('is-visible');
+            heroContent.classList.add('is-visible'); // Empieza el fade-in del hero
         }
-    }, 2500); 
+    }, 1000); // 1 segundo (0.5s rojo + 0.5s negro)
     
     setTimeout(() => {
         if(splashScreen && splashScreen.parentNode) {
             splashScreen.parentNode.removeChild(splashScreen);
         }
-    }, 3300);
-});
+    }, 1800); // 1s de espera + 0.8s de fade-out
 
-// --- TODO EL RESTO DEL CÓDIGO ---
-document.addEventListener('DOMContentLoaded', () => {
+
+    // --- 2. TODO EL RESTO DE TU CÓDIGO ---
 
     // Mobile menu toggle
     const menuToggle = document.getElementById('menuToggle');
@@ -60,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Portfolio filtering
     const filterButtons = document.querySelectorAll('.filter-btn');
-    const portfolioItems = document.querySelectorAll('.portfolio-item');
+    const portfolioItems = document.querySelectorAll('.portfolio-item'); // <-- ¡¡LA LÍNEA QUE FALTABA!!
 
     if (filterButtons.length > 0 && portfolioItems.length > 0) {
         filterButtons.forEach(button => {
@@ -73,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 portfolioItems.forEach(item => {
                     const category = item.getAttribute('data-category');
                     
-                    if (filter === 'all' || category === filter) {
+                    if (filter === 'all' || (category && category.includes(filter))) {
                         item.style.display = 'block';
                         item.style.animation = 'fadeInUp 0.5s ease';
                     } else {
@@ -84,22 +91,118 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Lógica para previsualización de videos en el portafolio
-    document.querySelectorAll('.portfolio-item').forEach(item => {
+    // --- LÓGICA DE PORTAFOLIO MEJORADA (PREVIEW Y MODAL) ---
+    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    const videoModal = document.getElementById('videoModal');
+    const videoPlayerContainer = document.querySelector('.video-container');
+    const closeModal = document.querySelector('.close-modal');
+
+    // Función para abrir el modal (la reutilizamos)
+    function openModalForItem(item) {
+        if (!videoModal || !videoPlayerContainer) return;
+
+        const videoId = item.getAttribute('data-video-id');
+        const videoSource = item.getAttribute('data-video-source') || 'youtube';
+        const videoOrientation = item.getAttribute('data-orientation');
+        
+        if (videoId) {
+            let embedUrl = '';
+
+            if (videoOrientation === 'vertical') {
+                videoModal.classList.add('is-vertical');
+            }
+
+            if (videoSource === 'youtube') {
+                embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+            } else if (videoSource === 'vimeo') {
+                embedUrl = `https://player.vimeo.com/video/${videoId}?autoplay=1`;
+            }
+            
+            if (embedUrl) {
+                videoPlayerContainer.innerHTML = `<iframe src="${embedUrl}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+                videoModal.classList.add('visible');
+            }
+        }
+    }
+
+    // Función para cerrar el modal
+    function closeVideoModal() {
+        if (videoModal && videoPlayerContainer) {
+            videoModal.classList.remove('visible');
+            videoModal.classList.remove('is-vertical');
+            videoModal.classList.remove('is-easter-egg');
+            videoPlayerContainer.innerHTML = ''; 
+        }
+    }
+
+    // Asignamos los listeners del modal
+    if (videoModal && videoPlayerContainer && closeModal) {
+        closeModal.addEventListener('click', closeVideoModal);
+        videoModal.addEventListener('click', (e) => {
+            if (e.target === videoModal) {
+                closeVideoModal();
+            }
+        });
+    }
+
+    // Asignamos los listeners a CADA item del portafolio
+    portfolioItems.forEach(item => {
         const videoPreview = item.querySelector('.portfolio-video-preview');
-        if (videoPreview) {
-            item.addEventListener('mouseenter', () => {
-                videoPreview.play().catch(error => {});
+
+        if (isTouchDevice) {
+            // --- LÓGICA PARA MÓVIL (Android, etc.) ---
+            item.addEventListener('click', (e) => {
+                
+                if (!item.classList.contains('is-previewing')) {
+                    // PRIMER TAP: Iniciar preview
+                    e.preventDefault();
+                    
+                    document.querySelectorAll('.portfolio-item.is-previewing').forEach(otherItem => {
+                        otherItem.classList.remove('is-previewing');
+                        const otherVideo = otherItem.querySelector('.portfolio-video-preview');
+                        if (otherVideo) {
+                            otherVideo.pause();
+                            otherVideo.currentTime = 0;
+                        }
+                    });
+
+                    item.classList.add('is-previewing');
+                    if (videoPreview) {
+                        videoPreview.play().catch(error => {});
+                    } else {
+                        openModalForItem(item);
+                        item.classList.remove('is-previewing');
+                    }
+                } else {
+                    // SEGUNDO TAP: Abrir el modal
+                    openModalForItem(item); 
+                    
+                    item.classList.remove('is-previewing');
+                    if (videoPreview) {
+                        videoPreview.pause();
+                        videoPreview.currentTime = 0;
+                    }
+                }
             });
-            item.addEventListener('mouseleave', () => {
-                videoPreview.pause();
-                videoPreview.currentTime = 0;
+        } else {
+            // --- LÓGICA PARA DESKTOP (Mouse) ---
+            if (videoPreview) {
+                item.addEventListener('mouseenter', () => {
+                    videoPreview.play().catch(error => {});
+                });
+                item.addEventListener('mouseleave', () => {
+                    videoPreview.pause();
+                    videoPreview.currentTime = 0;
+                });
+            }
+            
+            item.addEventListener('click', () => {
+                openModalForItem(item);
             });
         }
     });
 
     // Custom dropdown functionality
-    // ... (el código del dropdown sigue igual) ...
     const dropdownSelected = document.getElementById('dropdownSelected');
     const dropdownOptions = document.getElementById('dropdownOptions');
     const selectedText = document.getElementById('selectedText');
@@ -135,7 +238,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Contact form handling
-    // ... (el código del formulario sigue igual) ...
     const contactForm = document.getElementById('contactForm');
     const submitBtn = document.getElementById('submitBtn');
 
@@ -317,78 +419,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         whatsappObserver.observe(contactSection);
     }
-
-    // Lógica para el Modal de Video del Portafolio (con Lazy Loading)
-    const videoModal = document.getElementById('videoModal');
-    const videoPlayerContainer = document.querySelector('.video-container');
-    const closeModal = document.querySelector('.close-modal');
-
-    if (videoModal && videoPlayerContainer && closeModal) {
-        
-        // Función de Cierre ÚNICA
-        function closeVideoModal() {
-            videoModal.classList.remove('visible');
+    
+    // Trigger para el Easter Egg
+    const footerTrigger = document.querySelector('.footer p');
+    if (footerTrigger && videoModal && videoPlayerContainer && closeModal) {
+        footerTrigger.addEventListener('click', () => {
             videoModal.classList.remove('is-vertical');
-            videoModal.classList.remove('is-easter-egg'); // <-- ¡LIMPIEZA!
-            videoPlayerContainer.innerHTML = ''; 
-        }
-        
-        // Listeners del modal
-        closeModal.addEventListener('click', closeVideoModal);
-        videoModal.addEventListener('click', (e) => {
-            if (e.target === videoModal) {
-                closeVideoModal();
-            }
+            videoModal.classList.add('is-easter-egg');
+            videoPlayerContainer.innerHTML = `
+                <div class="easter-egg-text">
+                    &gt; NO HAY NADA QUE VER ACÁ_
+                </div>
+            `;
+            videoModal.classList.add('visible');
         });
-
-        // Trigger para las cards del portafolio
-        document.querySelectorAll('.portfolio-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const videoId = item.getAttribute('data-video-id');
-                const videoSource = item.getAttribute('data-video-source') || 'youtube';
-                const videoOrientation = item.getAttribute('data-orientation');
-                
-                if (videoId) {
-                    let embedUrl = '';
-
-                    if (videoOrientation === 'vertical') {
-                        videoModal.classList.add('is-vertical');
-                    }
-
-                    if (videoSource === 'youtube') {
-                        embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-                    } else if (videoSource === 'vimeo') {
-                        embedUrl = `https://player.vimeo.com/video/${videoId}?autoplay=1`;
-                    }
-                    
-                    if (embedUrl) {
-                        videoPlayerContainer.innerHTML = `<iframe src="${embedUrl}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
-                        videoModal.classList.add('visible');
-                    }
-                }
-            });
-        });
-
-        // Trigger para el Easter Egg
-        const footerTrigger = document.querySelector('.footer p');
-        if (footerTrigger) {
-            footerTrigger.addEventListener('click', () => {
-                // 1. Reseteamos el modal (por si acaso)
-                videoModal.classList.remove('is-vertical');
-                // 2. Agregamos la clase para modo texto
-                videoModal.classList.add('is-easter-egg');
-
-                // 3. Cargamos solo el cartel de texto
-                videoPlayerContainer.innerHTML = `
-                    <div class="easter-egg-text">
-                        &gt; NO HAY NADA QUE VER ACÁ_
-                    </div>
-                `;
-                
-                // 4. Prendemos el modal
-                videoModal.classList.add('visible');
-            });
-        }
     }
 
 }); // <-- FIN DEL DOMCONTENTLOADED
