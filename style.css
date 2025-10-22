@@ -1054,8 +1054,16 @@ body {
     }
     
     .video-modal.is-vertical .close-modal {
-        /* Mantenemos las mismas reglas para la X en móvil, sea vertical u horizontal */
         top: 10px;
         right: 10px;
+    }
+
+    /* FIX: Forzar colores de ubicación en móvil */
+    .portfolio-location {
+        color: var(--text-gray) !important;
+    }
+    
+    .portfolio-location svg {
+        stroke: var(--accent-red) !important;
     }
 }
