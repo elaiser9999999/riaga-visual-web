@@ -5,6 +5,9 @@
     box-sizing: border-box;
 }
 
+/* Importación de Fira Code */
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
+
 :root {
     --primary-black: #000000;
     --secondary-black: #1a1a1a;
@@ -961,6 +964,44 @@ body {
     color: var(--text-gray);
 }
 
+.footer p {
+    cursor: pointer;
+    transition: color 0.3s var(--easing);
+}
+
+.footer p:hover {
+    color: var(--accent-red);
+}
+
+/* Easter Egg Text */
+.easter-egg-text {
+    font-family: 'Fira Code', monospace;
+    font-size: 1.5rem;
+    color: var(--accent-red);
+    white-space: nowrap;
+    overflow: hidden;
+    animation: 
+        typing 3s steps(27, end) forwards,
+        blink-caret .75s step-end infinite;
+    text-shadow: 0 0 5px rgba(255, 0, 0, 0.7);
+    border-right: 3px solid var(--accent-red);
+}
+
+.video-modal.is-easter-egg .video-modal-content {
+    width: auto;
+    max-width: 90vw;
+    height: auto;
+    background: transparent;
+    padding: 0;
+}
+
+.video-modal.is-easter-egg .video-container {
+    padding-bottom: 0;
+    height: auto;
+    background: transparent;
+}
+
+
 /* Botón flotante de WhatsApp */
 .whatsapp-flotante {
     position: fixed;
@@ -1010,6 +1051,8 @@ body {
 @keyframes dropdownSlide { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes smoothZoom { 0% { transform: scale(1.05); } 100% { transform: scale(1.15); } }
 @keyframes fadeInPulse { 0% { opacity: 0; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes typing { from { width: 0 } to { width: 100% } }
+@keyframes blink-caret { from, to { border-right-color: transparent } 50% { border-right-color: var(--accent-red) } }
 
 
 /* Animation Delays */
@@ -1058,12 +1101,15 @@ body {
         right: 10px;
     }
 
-    /* FIX: Forzar colores de ubicación en móvil */
     .portfolio-location {
         color: var(--text-gray) !important;
     }
     
     .portfolio-location svg {
         stroke: var(--accent-red) !important;
+    }
+
+    .easter-egg-text {
+        font-size: 1rem;
     }
 }

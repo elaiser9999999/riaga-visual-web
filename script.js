@@ -1,29 +1,26 @@
-// --- ¡¡EL ÚNICO LISTENER QUE IMPORTA!! ---
-document.addEventListener('DOMContentLoaded', () => {
-
-    // --- 1. LÓGICA DEL SPLASH SCREEN (AHORA ESTÁ ACÁ ADENTRO) ---
+// --- LÓGICA DEL SPLASH SCREEN ---
+window.addEventListener('load', () => {
     const splashScreen = document.getElementById('splashScreen');
-    const heroContent = document.querySelector('.hero-content'); // <-- Buscamos el contenido
+    const heroContent = document.querySelector('.hero-content');
     
-    // 1.5s para la anim del logo + 1s de "pausa dramática"
     setTimeout(() => {
         if(splashScreen) {
             splashScreen.classList.add('hidden');
         }
         if(heroContent) {
-            heroContent.classList.add('is-visible'); // <-- ¡¡EL TRIGGER QUE FALTABA!!
+            heroContent.classList.add('is-visible');
         }
-    }, 2500); // 2.5 segundos (1500ms del logo + 1000ms de espera)
+    }, 2500); 
     
-    // 2.5s de espera + 0.8s de fade-out
     setTimeout(() => {
         if(splashScreen && splashScreen.parentNode) {
             splashScreen.parentNode.removeChild(splashScreen);
         }
-    }, 3300); // 2500ms + 800ms de transición
+    }, 3300);
+});
 
-
-    // --- 2. TODO EL RESTO DE TU CÓDIGO ---
+// --- TODO EL RESTO DEL CÓDIGO ---
+document.addEventListener('DOMContentLoaded', () => {
 
     // Mobile menu toggle
     const menuToggle = document.getElementById('menuToggle');
@@ -102,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Custom dropdown functionality
+    // ... (el código del dropdown sigue igual) ...
     const dropdownSelected = document.getElementById('dropdownSelected');
     const dropdownOptions = document.getElementById('dropdownOptions');
     const selectedText = document.getElementById('selectedText');
@@ -137,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Contact form handling
+    // ... (el código del formulario sigue igual) ...
     const contactForm = document.getElementById('contactForm');
     const submitBtn = document.getElementById('submitBtn');
 
@@ -325,6 +324,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModal = document.querySelector('.close-modal');
 
     if (videoModal && videoPlayerContainer && closeModal) {
+        
+        // Función de Cierre ÚNICA
+        function closeVideoModal() {
+            videoModal.classList.remove('visible');
+            videoModal.classList.remove('is-vertical');
+            videoModal.classList.remove('is-easter-egg'); // <-- ¡LIMPIEZA!
+            videoPlayerContainer.innerHTML = ''; 
+        }
+        
+        // Listeners del modal
+        closeModal.addEventListener('click', closeVideoModal);
+        videoModal.addEventListener('click', (e) => {
+            if (e.target === videoModal) {
+                closeVideoModal();
+            }
+        });
+
+        // Trigger para las cards del portafolio
         document.querySelectorAll('.portfolio-item').forEach(item => {
             item.addEventListener('click', () => {
                 const videoId = item.getAttribute('data-video-id');
@@ -352,19 +369,26 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        function closeVideoModal() {
-            videoModal.classList.remove('visible');
-            videoModal.classList.remove('is-vertical');
-            videoPlayerContainer.innerHTML = ''; 
+        // Trigger para el Easter Egg
+        const footerTrigger = document.querySelector('.footer p');
+        if (footerTrigger) {
+            footerTrigger.addEventListener('click', () => {
+                // 1. Reseteamos el modal (por si acaso)
+                videoModal.classList.remove('is-vertical');
+                // 2. Agregamos la clase para modo texto
+                videoModal.classList.add('is-easter-egg');
+
+                // 3. Cargamos solo el cartel de texto
+                videoPlayerContainer.innerHTML = `
+                    <div class="easter-egg-text">
+                        &gt; NO HAY NADA QUE VER ACÁ_
+                    </div>
+                `;
+                
+                // 4. Prendemos el modal
+                videoModal.classList.add('visible');
+            });
         }
-
-        closeModal.addEventListener('click', closeVideoModal);
-
-        videoModal.addEventListener('click', (e) => {
-            if (e.target === videoModal) {
-                closeVideoModal();
-            }
-        });
     }
 
 }); // <-- FIN DEL DOMCONTENTLOADED
