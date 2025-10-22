@@ -34,6 +34,38 @@ body {
     outline: none !important;
 }
 
+/* Splash Screen */
+.splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--primary-black);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.8s var(--easing), visibility 0.8s var(--easing);
+}
+
+.splash-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.splash-logo {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent-red);
+    opacity: 0;
+    transform: scale(0.95);
+    animation: fadeInPulse 1.5s ease-out forwards;
+}
+
 /* Header and Navigation */
 .header {
     position: fixed;
@@ -179,7 +211,6 @@ body {
     left: -5%; 
     width: 110%; 
     height: 110%; 
-    /* ¡¡ESTE ES EL LINK CORRECTO!! */
     background-image: url('https://raw.githubusercontent.com/elaiser9999999/riaga-visual-web/main/images/u7537512234_Extreme_close-up_portrait_of_a_woman_non-hegemoni_956ecf73-594a-435c-84a2-f5df6a51b46a_2.png');
     background-size: cover;
     background-position: center;
@@ -187,6 +218,7 @@ body {
     filter: blur(8px) grayscale(50%);
     z-index: 1;
     pointer-events: none;
+    transform: scale(1.05);
     animation: smoothZoom 30s ease-in-out infinite alternate;
 }
 
@@ -205,9 +237,9 @@ body {
 .hero-content {
     max-width: 800px;
     padding: 0 2rem;
-    opacity: 1; 
     position: relative;
     z-index: 3;
+    /* La clase 'is-visible' la vamos a agregar con JS */
 }
 
 .hero h1 {
@@ -221,6 +253,11 @@ body {
     background-clip: text;
     background-size: 200% 200%;
     animation: auroraGlow 10s ease-in-out infinite alternate;
+    
+    /* Estado inicial (oculto) */
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s var(--easing) 0.2s, transform 0.8s var(--easing) 0.2s;
 }
 
 .hero .tagline {
@@ -228,8 +265,12 @@ body {
     margin-bottom: 2rem;
     color: var(--text-gray);
     font-weight: 300;
-    animation: none;
     opacity: 1;
+    
+    /* Estado inicial (oculto) */
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s var(--easing) 0.4s, transform 0.8s var(--easing) 0.4s;
 }
 
 .cta-button {
@@ -243,10 +284,21 @@ body {
     transition: all 0.4s var(--easing);
     text-transform: uppercase;
     letter-spacing: 1px;
-    animation: none;
     opacity: 1;
     position: relative;
     overflow: hidden;
+    
+    /* Estado inicial (oculto) */
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s var(--easing) 0.6s, transform 0.8s var(--easing) 0.6s;
+}
+
+.hero-content.is-visible h1,
+.hero-content.is-visible .tagline,
+.hero-content.is-visible .cta-button {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .cta-button:hover {
@@ -279,7 +331,7 @@ body {
     margin: 0 auto;
     padding-left: 2rem;
     padding-right: 2rem;
-    opacity: 1; /* Sección visible por defecto */
+    opacity: 1;
     transform: translateY(0);
 }
 
@@ -371,7 +423,7 @@ body {
     position: relative;
     overflow: hidden;
     transition: all 0.4s var(--easing);
-    pointer-events: none; /* EL ARREGLO PARA EL CLIC */
+    pointer-events: none;
 }
 
 .portfolio-image img,
@@ -409,6 +461,7 @@ body {
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
     transition: left 0.5s ease;
     z-index: 3;
+    pointer-events: none;
 }
 
 .portfolio-item:hover .portfolio-image::before {
@@ -419,6 +472,7 @@ body {
     padding: 1.5rem;
     position: relative;
     z-index: 2;
+    pointer-events: auto;
 }
 
 .portfolio-title {
@@ -825,6 +879,7 @@ body {
     position: relative;
     width: 90%;
     max-width: 1200px;
+    background-color: #000;
 }
 
 .video-container {
@@ -857,12 +912,14 @@ body {
 .close-modal {
     color: #fff;
     position: absolute;
-    top: -40px;
+    top: -35px;
     right: 0;
     font-size: 40px;
     font-weight: bold;
     transition: all 0.3s ease;
     cursor: pointer;
+    z-index: 2100;
+    line-height: 1;
 }
 
 .close-modal:hover,
@@ -928,6 +985,8 @@ body {
 @keyframes staggerFadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes dropdownSlide { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes smoothZoom { 0% { transform: scale(1.05); } 100% { transform: scale(1.15); } }
+@keyframes fadeInPulse { 0% { opacity: 0; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
+
 
 /* Animation Delays */
 .service-card:nth-child(1) { animation-delay: 0.1s; } .service-card:nth-child(2) { animation-delay: 0.2s; } .service-card:nth-child(3) { animation-delay: 0.3s; } .service-card:nth-child(4) { animation-delay: 0.4s; }
@@ -951,4 +1010,22 @@ body {
     .section-title { font-size: 2rem; }
     .portfolio-grid { grid-template-columns: 1fr; }
     .contact-container { grid-template-columns: 1fr; }
+    
+    .close-modal {
+        top: 10px;
+        right: 10px;
+        font-size: 30px;
+        background-color: rgba(0,0,0,0.5);
+        border-radius: 50%;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .video-modal-content {
+        width: 95vw;
+        max-width: 95vw;
+    }
 }
